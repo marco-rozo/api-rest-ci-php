@@ -534,7 +534,7 @@ $config['rest_ajax_only'] = false;
 | Language file to load from the language directory
 |
 */
-$config['rest_language'] = 'english';
+$config['rest_language'] = 'portuguese-brazilian';
 
 /*
 |--------------------------------------------------------------------------
@@ -575,7 +575,7 @@ $config['allowed_cors_headers'] = [
 $config['allowed_cors_methods'] = [
   'GET',
   'POST',
-  'OPTIONS',
+//  'OPTIONS',
   'PUT',
   'PATCH',
   'DELETE',

@@ -13,10 +13,15 @@ class Usuario_model extends CI_Model
         $this->db->limit(1);
         return $this->db->get('usuario')->result();
     }
+    public function getAll()
+    {
+        $this->db->select('usuario.*');
+        return $this->db->get('usuario')->result();
+    }
 
     public function insert($post)
     {
-        $this->db->insert('usuario', $post);
+        $this->db->insert(self::table, $post);
         return $this->db->insert_id();
     }
 

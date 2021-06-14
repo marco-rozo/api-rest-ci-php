@@ -1,7 +1,11 @@
 <?php
 defined('BASEPATH') or exit('No direct script access allowed');
 
-class Usuario extends CI_Controller{
+use chriskacerguis\RestServer\RestController;
+
+class Usuario extends RestController
+{
+
     function __construct()
     {
         // Construct the parent class
@@ -56,8 +60,9 @@ class Usuario extends CI_Controller{
         }
     }
 
-    public function login(){
+    public function buscalogin_get(){
         $email = strtolower(trim($this->input_user->email));
+//        $telefone = strtolower(trim($this->input_user->telefone));
         $senha = trim($this->input_user->senha);
         //verifica se os campos foram preenchidos
         if (!empty($telefone) || !empty($email)) {
@@ -83,6 +88,69 @@ class Usuario extends CI_Controller{
         } else {
             http_response_code(400);
             echo json_encode(array('error' => true, 'msg' => 'Dados necessários não preenchidos'));
+        }
+    }
+
+    public function allusers_get(){
+        $retorno = $this->Usuario_model->getAll();
+        if ($retorno){
+            http_response_code(200);
+            $retorno[0]->error = false;
+            echo json_encode($retorno);
+        } else{
+            http_response_code(406);
+            echo json_encode(array('error' => true, 'msg' => 'Algo Deu Errado'));
+        }
+    }
+
+    public function recuperarsenha_post()
+    {
+        $email = strtolower(trim($this->input_user->email));
+        if (!empty($email)) {
+            if (filter_var($email, FILTER_VALIDATE_EMAIL)) {
+                $retorno = $this->Login_model->get(array('email' => $email, ));
+                if ($retorno) {
+                    $novasenha = random_string('alnum', 6);
+                    $senhacrip = md5($novasenha . $this->config->item('encryption_key'));
+
+                    $this->load->library('email'); // Note: no $config param needed
+                    $this->email->from('no-reply-cde@testemarcorozo.com.py','TESTE MARCO DEV');
+                    $this->email->to(/*$email*/'tmarco2702@gmail.com');
+                    $this->email->subject('Apenas um teste marco');
+                    $this->email->message('lalalalalalalalalalalalalalalalala');
+                    if ($this->email->send()) {
+                        //atualiza a senha do motorista
+                        $this->Login_model->update(array('senha'=>$senhacrip), array('email' => $email));
+                        $this->User_model->updateToken($retorno[0]->id,array('key'=>md5(random_string('alnum', 6).date('YmdHis') . $this->config->item('encryption_key'))));
+                        http_response_code(200);
+                        echo json_encode(array('error' => false, 'msg' => $this->lang->line('login_email_envio')));
+                    }
+                } else {
+                    http_response_code(400);
+                    echo json_encode(array('error' => true, 'msg' => 'Email não encontrado na base de dados'));
+                }
+            } else {
+                http_response_code(400);
+                echo json_encode(array('error' => true, 'msg' => 'Email inválido'));
+            }
+        } else {
+            http_response_code(400);
+            echo json_encode(array('error' => true, 'msg' => 'Dados necessários não preencidos'));
+
+        }
+    }
+
+    public function eviodeemail_post(){
+        $email = strtolower(trim($this->input_user->email));
+
+        $this->load->library('email'); // Note: no $config param needed
+        $this->email->from('no-reply-cde@testemarcorozo.com.py', 'TESTE MARCO DEV');
+        $this->email->to(/*$email*/ 'tmarco2702@gmail.com');
+        $this->email->subject('Apenas um teste marco');
+        $this->email->message('lalalalalalalalalalalalalalalalala');
+        if ($this->email->send()) {
+            http_response_code(200);
+            echo json_encode(array('error' => false, 'msg' => 'Email enviado'));
         }
     }
 }
