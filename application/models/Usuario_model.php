@@ -13,11 +13,24 @@ class Usuario_model extends CI_Model
         $this->db->limit(1);
         return $this->db->get('usuario')->result();
     }
-    public function getAll()
+
+    public function get_all()
     {
         $this->db->select('usuario.*');
         return $this->db->get('usuario')->result();
     }
+
+    public function desativar_usuario($data,$id) {
+        $this->db->update(self::table, $data ,array('id'=>$id));
+        return $this->db->affected_rows();
+    }
+
+//    public function update($where, $post) {
+//        $this->db->where($where);
+//        $this->db->update('alocacao', $post);
+////        echo $this->db->last_query();
+//        return $this->db->affected_rows();
+//    }
 
     public function insert($post)
     {
@@ -25,9 +38,17 @@ class Usuario_model extends CI_Model
         return $this->db->insert_id();
     }
 
-    public function insertAPI($insert)
+    public function insert_API($insert)
     {
         $this->db->insert(self::tableAPI, $insert);
         return $this->db->insert_id();
+    }
+
+    public function get_token($where)
+    {
+        $this->db->select(self::tableAPI.'.*');
+        $this->db->where($where);
+        $this->db->limit(1);
+        return $this->db->get(self::tableAPI)->result();
     }
 }
